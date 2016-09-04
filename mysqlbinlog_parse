@@ -1,0 +1,208 @@
+#! /usr/bin/perl -w
+#
+#  parse INSERT, UPDATE, DELETE event from row-formated binlog
+#  usage: mysqlbinlog_parse parse binlog to build flushback sql
+#  kevin6386@163.com 2016/09/02
+#  :)
+#  会根据解析的内容在/tmp目录下生成dbname.table 类型的sql文件,将DELETE转换成INSERT INTO 
+#  将UPDATE反序生成UPDATE, INSERT INTO 转换为DELETE
+use DBI;
+use strict;
+use Getopt::Long;
+use Term::ANSIColor;
+my %opt;
+my $local_db='information_schema';
+my $local_dbip='localhost';
+my $local_dbuser='voole_back';
+my $local_dbpass='voole_back';
+my $output_file='/tmp/binlog_out.txt';
+my $binlog_file; 
+my (%do_dbs,%do_tbs);
+my $MYSQLBINLOG=`which mysqlbinlog`;
+my ($ROLLBACK_DML);
+chomp($MYSQLBINLOG);
+my $PRINT_DES = '--------------------------';
+my $ldbh;
+# 定义命令指定参数 
+sub get_options{
+	#Get options info
+	GetOptions(\%opt,
+		'help|h=s',			# 帮助
+		'f|binlog=s',			# IN  :  binlog file
+		'start-datetime=s',		# IN  :  start datetime
+		'stop-datetime=s',		# IN  :  stop datetime
+		'start-position=i',		# IN  :  start position
+		'stop-position=i',		# IN  :  stop position
+		'd=s',				#指定数据库
+		't=s'				#指定表
+	  ) or print_usage();
+
+	if (!scalar(%opt)) {
+		&print_usage();
+	}
+	if($opt{'help'}){
+		&print_usage();
+	};
+	
+	if ($opt{'f'}){
+		$binlog_file = $opt{'f'};
+		&check_binlog($binlog_file);
+	}else{
+		&error("please input binlog file");
+	}
+	my $dbname='';
+	my $table='';
+	if($opt{'t'}){
+		$table=$opt{'t'};
+	}
+	if($opt{'d'}){
+		$dbname=$opt{'d'};
+	}
+	my $d_t="$dbname.$table";
+	# 
+	# 提取binlog,不需要显示列定义信息，用-v，--base64-output=DECODE-ROWS 不显示注释
+	my $MYSQLBINLOG = qq{$MYSQLBINLOG -v --base64-output=DECODE-ROWS};
+	$MYSQLBINLOG .= " --start-position=".$opt{'start-position'} if $opt{'start-position'};
+	$MYSQLBINLOG .= " --stop-position=".$opt{'stop-position'} if $opt{'stop-postion'};
+	$MYSQLBINLOG .= " --start-datetime='".$opt{'start-datetime'}."'" if $opt{'start-datetime'};
+	$MYSQLBINLOG .= " --stop-datetime='$opt{'stop-datetime'}'" if $opt{'stop-datetime'};
+	$MYSQLBINLOG .= " $binlog_file";
+	# 不使用mysqlbinlog过滤，USE dbname;方式可能会漏掉某些sql，所以不在mysqlbinlog过滤
+	# 提取有效DML SQL,提取###的真实sql,并添加','
+	$ROLLBACK_DML = $MYSQLBINLOG." | grep '^###'|sed '/@/s/\$/,/'";
+	#输出到/tmp/
+	$ROLLBACK_DML .= ">$output_file";
+	my $return=`$ROLLBACK_DML`;
+	print "$ROLLBACK_DML\n";
+	# 检查内容是否为空
+	if(  !-f $output_file){
+		print "$output_file is parse error !\n";
+		exit;
+	}
+	#判断是否读取特定库或表
+	my $GREP="grep -E -i 'delete|update|insert' $output_file";
+	if( $d_t ne '.'){
+		$GREP.="|grep -i '$d_t'";
+	}	
+	#获取库和表信息
+	my @dbinfo=`$GREP |awk '{print \$NF}' |sort|uniq`;
+	foreach my $key ( @dbinfo){
+		chomp($key);
+		&get_db_table("$key");
+	}	
+}
+&get_options;
+sub get_db_table{
+	&LOCAL_DBCON;
+	my @dbinfo=split(/\./,$_[0]);
+	my $db=$dbinfo[0];
+	my $table=$dbinfo[1];
+	chomp($db);
+	chomp($table);
+	if($db =~ /`/m){
+		 $db=~s/`//;
+	}
+	if($table =~ /`/m){
+		$table=~s/`//;
+	}
+	#获取表一共多少字段,用来grep获取信息用
+	my $ch="select count(*) from information_schema.`COLUMNS` where TABLE_SCHEMA='$db' and TABLE_NAME='$table'";
+	my $sth = $ldbh->prepare("$ch");
+        $sth->execute();
+        my $num='';
+        while (my @row = $sth->fetchrow_array ) {
+                $num=$row[0];
+		chomp($num);
+        }
+	#将定义delete 和insert和update 后的grep 后的 数字
+	my $d_i_num=$num+1;
+	my $up_num=$num*2+2;
+	my $des_num=$num-1;
+	#获取字段和id值
+	my $get_t_id="select COLUMN_NAME col,ORDINAL_POSITION id from information_schema.`COLUMNS` where TABLE_SCHEMA='$db' and TABLE_NAME='$table' ORDER BY ORDINAL_POSITION asc";
+	my $col;
+	my $cols;
+	my $id;
+	my $up_sed;
+	my $gsth = $ldbh->prepare("$get_t_id");
+        $gsth->execute();
+        while (my @row = $gsth->fetchrow_array ) {
+                $id=$row[1];
+		$col=$row[0];
+		$cols.="$col".'|';
+		$up_sed.="s/\@$id/$col/g".';';
+        }
+	#判断是否存在delete
+	my $delete=`grep -i 'delete from $db.$table' $output_file`;
+	#定义去掉空格和###删除空行规则
+	my $tab="s=^###\\s*==g;s=\\s*\$==g";
+	my $del="sed 's=DELETE FROM=replace into=g;s=WHERE=select=g;s/\\@[0-9]=//g;$tab'";
+	my $ins="sed -r '$tab;$up_sed/,/s/,/ and /g;s/INSERT INTO/DELETE FROM/g;s/SET/WHERE/g'";
+	my $upd="sed '$tab'|sed '/WHERE/{:a;N;/SET/!ba;s/\\([^\\n]*\\)\\n\\(.*\\)\\n\\(.*\\)/\\3\\n\\2\\n\\1/}'|sed -r '/^WHERE/,/\@$des_num/s/,/ and /g'|sed '/WHERE/{:a;N;/\@$num/!ba;s/,/;/g}'|sed -r  '/SET/{:a;n;/\@$num.*/!ba;s/,//g}'|sed '$up_sed'";
+	chomp($delete);
+	if( $delete ne '' ){
+		#提取delete
+	   	my $delete_file=`grep -i 'delete from $db.$table' -A $d_i_num $output_file |sed -r 's/(\@$num.*),/\\1;/'|$del >/tmp/$db.$table-'delete_to_insert.sql'`;
+	}
+	#判断是否存在insert
+	my $insert=`grep -i 'INSERT INTO $db.$table' $output_file`;
+	chomp($insert);
+        if( $insert ne '' ){
+                #提取insert
+                #my $insert_file=`grep -i 'INSERT INTO $db.$table' -A $d_i_num $output_file |sed -r 's/(\@$num.*),/\\1;/g'|$ins >/tmp/$db.$table-'insert_to_delete.sql'`;
+		my $inser=`grep -i 'INSERT INTO $db.$table' -A $d_i_num $output_file |sed -r 's/(\@$num.*),/\\1;/g'|$ins >/tmp/$db.$table-'insert_to_delete.sql'`;
+	}
+	#判断是否存在update
+	my $update=`grep -i 'UPDATE $db.$table' $output_file`;
+        chomp($update);
+        if( $update ne '' ){
+                #提取update
+ 		my $update=`grep -i 'UPDATE $db.$table' -A $up_num $output_file |$upd >/tmp/$db.$table-'update_to_update.sql'`;               
+        }
+}
+#定义连接本地用户名及密码
+#grant select,super on *.* to voole_back@localhost identified by 'voole_back';
+#定义连接本地数据库函数
+sub LOCAL_DBCON{
+	my $dsn1="DBI:mysql:database=$local_db;host=$local_dbip;port=3306";
+    	$ldbh = DBI->connect("$dsn1","$local_dbuser","$local_dbpass") or  die "Unable to connect: $DBI::errstr\n";
+}
+sub check_binlog{
+	my $binlog=$_[0];
+	if(! -f $binlog ){
+		print "$binlog file is not exits!\n";
+		exit;
+	}
+		
+}
+sub error{
+	my (@msg) = @_;
+	print "<Error>:@msg\n";
+	&print_usage();
+	exit(1);
+}
+#
+sub print_usage{
+	print color 'bold blue'; print  <<EOF;
+==========================================================================================
+options :
+	-h,--help			# OUT : print help info   
+	-f				# IN  : binlog file. [required]
+	--start-datetime		# IN  : start datetime
+	--stop-datetime			# IN  : stop datetime
+	--start-position		# IN  : start position
+	--stop-position			# IN  : stop position
+	-d, --database			# IN  : database, split comma
+	-t, --table			# IN  : table, split comma. [required] set -d
+Sample :
+   mysqlbinlog_parse -f 'mysql-bin.xxx' 
+   mysqlbinlog_parse -f 'mysql-bin.xxx'  --start-position=pos
+   mysqlbinlog_parse -f 'mysql-bin.xxx'  --start-position=pos --stop-position=pos
+   mysqlbinlog_parse -f 'mysql-bin.xxx'  -d 'db'
+   mysqlbinlog_parse -f 'mysql-bin.xxx'  -d 'db' -t 'table'
+==========================================================================================
+EOF
+print color 'reset'; 
+	exit;   
+}
+
