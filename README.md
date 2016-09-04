@@ -36,27 +36,27 @@ Query OK, 1 row affected (0.00 sec)<br>
 Query OK, 1 row affected (0.00 sec)<br>
 
 (root:voole:)[cacti_data]> select * from c;<br>
-+------+------+
-| a    | b    |
-+------+------+
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-+------+------+
++------+------+<br>
+| a    | b    |<br>
++------+------+<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
++------+------+<br>
 4 rows in set (0.00 sec)<br>
 
 ##删除测试：
 (root:voole:)[cacti_data]> select * from c;<br>
-+------+------+
-| a    | b    |
-+------+------+
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-+------+------+
++------+------+<br>
+| a    | b    |<br>
++------+------+<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
++------+------+<br>
 5 rows in set (0.00 sec)<br>
 (root:voole:)[cacti_data]> delete from c;<br>
 Query OK, 5 rows affected (0.00 sec)<br>
@@ -68,14 +68,14 @@ Empty set (0.00 sec)<br>
 Query OK, 4 rows affected (0.00 sec)<br>
 Rows matched: 4  Changed: 4  Warnings: 0<br>
 (root:voole:)[cacti_data]> select * from c;<br>
-+------+----------+
-| a    | b        |
-+------+----------+
-|    1 | fdsafdas |
-|    1 | fdsafdas |
-|    1 | fdsafdas |
-|    1 | fdsafdas |
-+------+----------+
++------+----------+<br>
+| a    | b        |<br>
++------+----------+<br>
+|    1 | fdsafdas |<br>
+|    1 | fdsafdas |<br>
+|    1 | fdsafdas |<br>
+|    1 | fdsafdas |<br>
++------+----------+<br>
 4 rows in set (0.00 sec)<br>
 (root:voole:)[cacti_data]> <br>
 
@@ -154,14 +154,14 @@ Enter password: <br>
 ##查看<br>
 (root:voole:)[cacti_data]> select * from c;<br>
 +------+------+<br>
-| a    | b    |
-+------+------+
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-+------+------+
+| a    | b    |<br>
++------+------+<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
++------+------+<br>
 5 rows in set (0.00 sec)<br>
 (root:voole:)[cacti_data]> <br>
 
@@ -198,15 +198,15 @@ a=1 and <br>
 b='fdsafdas';<br>
 ##查看表<br>
 (root:voole:)[cacti_data]> select * from c;<br>
-+------+----------+
-| a    | b        |
-+------+----------+
-|    1 | fdsafdas |
-|    1 | fdsafdas |
-|    1 | fdsafdas |
-|    1 | fdsafdas |
-|    1 | fdsafdas |
-+------+----------+
++------+----------+<br>
+| a    | b        |<br>
++------+----------+<br>
+|    1 | fdsafdas |<br>
+|    1 | fdsafdas |<br>
+|    1 | fdsafdas |<br>
+|    1 | fdsafdas |<br>
+|    1 | fdsafdas |<br>
++------+----------+<br>
 5 rows in set (0.00 sec)<br>
 (root:voole:)[cacti_data]> <br>
 ##导入sql<br>
@@ -216,15 +216,15 @@ Enter password: <br>
 
 ##查看<br>
 (root:voole:)[cacti_data]> select * from c;<br>
-+------+------+
-| a    | b    |
-+------+------+
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-|    1 | 2    |
-+------+------+
++------+------+<br>
+| a    | b    |<br>
++------+------+<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
+|    1 | 2    |<br>
++------+------+<br>
 5 rows in set (0.00 sec)<br>
 (root:voole:)[cacti_data]> 
 
