@@ -3,39 +3,39 @@ mysqlbinlog 对delete update insert 闪回操作，在tmp 生成对应闪回的�
 MySQL binlog格式必须开启ROW格式
 工具采用perl编写
 ##参数：
-options :
-	-h,--help			    # OUT : print help info   
-	-f				        # IN  : binlog file. [required]
-	--start-datetime		# IN  : start datetime
-	--stop-datetime			# IN  : stop datetime
-	--start-position		# IN  : start position
-	--stop-position			# IN  : stop position
-	-d, --database			# IN  : database, split comma
-	-t, --table			    # IN  : table, split comma. [required] set -d
+options :<br>
+	-h,--help			    # OUT : print help info   <br>
+	-f				        # IN  : binlog file. [required]<br>
+	--start-datetime		# IN  : start datetime<br>
+	--stop-datetime			# IN  : stop datetime<br>
+	--start-position		# IN  : start position<br>
+	--stop-position			# IN  : stop position<br>
+	-d, --database			# IN  : database, split comma<br>
+	-t, --table			    # IN  : table, split comma. [required] set -d<br>
 Sample :
-   mysqlbinlog_parse -f 'mysql-bin.xxx' #指定binlog文件
-   mysqlbinlog_parse -f 'mysql-bin.xxx'  --start-position=pos#开始点
-   mysqlbinlog_parse -f 'mysql-bin.xxx'  --start-position=pos --stop-position=pos#开始和结束
-   mysqlbinlog_parse -f 'mysql-bin.xxx'  -d 'db' #指定db
-   mysqlbinlog_parse -f 'mysql-bin.xxx'  -d 'db' -t 'table' #指定table
+   mysqlbinlog_parse -f 'mysql-bin.xxx' #指定binlog文件<br>
+   mysqlbinlog_parse -f 'mysql-bin.xxx'  --start-position=pos#开始点<br>
+   mysqlbinlog_parse -f 'mysql-bin.xxx'  --start-position=pos --stop-position=pos#开始和结束<br>
+   mysqlbinlog_parse -f 'mysql-bin.xxx'  -d 'db' #指定db<br>
+   mysqlbinlog_parse -f 'mysql-bin.xxx'  -d 'db' -t 'table' #指定table<br>
 
-##插入测试：
-(root:voole:)[cacti_data]> select * from c;
-Empty set (0.00 sec)
+##插入测试：<br>
+(root:voole:)[cacti_data]> select * from c;<br>
+Empty set (0.00 sec)<br>
 
-(root:voole:)[cacti_data]> insert into c values(1,2);
-Query OK, 1 row affected (0.00 sec)
+(root:voole:)[cacti_data]> insert into c values(1,2);<br>
+Query OK, 1 row affected (0.00 sec)<br>
 
-(root:voole:)[cacti_data]> insert into c values(1,2);
-Query OK, 1 row affected (0.00 sec)
+(root:voole:)[cacti_data]> insert into c values(1,2);<br>
+Query OK, 1 row affected (0.00 sec)<br>
 
-(root:voole:)[cacti_data]> insert into c values(1,2);
-Query OK, 1 row affected (0.00 sec)
+(root:voole:)[cacti_data]> insert into c values(1,2);<br>
+Query OK, 1 row affected (0.00 sec)<br>
 
-(root:voole:)[cacti_data]> insert into c values(1,2);
-Query OK, 1 row affected (0.00 sec)
+(root:voole:)[cacti_data]> insert into c values(1,2);<br>
+Query OK, 1 row affected (0.00 sec)<br>
 
-(root:voole:)[cacti_data]> select * from c;
+(root:voole:)[cacti_data]> select * from c;<br>
 +------+------+
 | a    | b    |
 +------+------+
@@ -44,10 +44,10 @@ Query OK, 1 row affected (0.00 sec)
 |    1 | 2    |
 |    1 | 2    |
 +------+------+
-4 rows in set (0.00 sec)
+4 rows in set (0.00 sec)<br>
 
 ##删除测试：
-(root:voole:)[cacti_data]> select * from c;
+(root:voole:)[cacti_data]> select * from c;<br>
 +------+------+
 | a    | b    |
 +------+------+
@@ -57,17 +57,17 @@ Query OK, 1 row affected (0.00 sec)
 |    1 | 2    |
 |    1 | 2    |
 +------+------+
-5 rows in set (0.00 sec)
-(root:voole:)[cacti_data]> delete from c;
-Query OK, 5 rows affected (0.00 sec)
-(root:voole:)[cacti_data]> select * from c;
-Empty set (0.00 sec)
-
+5 rows in set (0.00 sec)<br>
+(root:voole:)[cacti_data]> delete from c;<br>
+Query OK, 5 rows affected (0.00 sec)<br>
+(root:voole:)[cacti_data]> select * from c;<br>
+Empty set (0.00 sec)<br>
+<br>
 ##更新测试：
-(root:voole:)[cacti_data]> update c set b='fdsafdas';
-Query OK, 4 rows affected (0.00 sec)
-Rows matched: 4  Changed: 4  Warnings: 0
-(root:voole:)[cacti_data]> select * from c;
+(root:voole:)[cacti_data]> update c set b='fdsafdas';<br>
+Query OK, 4 rows affected (0.00 sec)<br>
+Rows matched: 4  Changed: 4  Warnings: 0<br>
+(root:voole:)[cacti_data]> select * from c;<br>
 +------+----------+
 | a    | b        |
 +------+----------+
@@ -76,84 +76,84 @@ Rows matched: 4  Changed: 4  Warnings: 0
 |    1 | fdsafdas |
 |    1 | fdsafdas |
 +------+----------+
-4 rows in set (0.00 sec)
-(root:voole:)[cacti_data]> 
+4 rows in set (0.00 sec)<br>
+(root:voole:)[cacti_data]> <br>
 
-##执行恢复命令
-./mysqlbinlog_parse -f /data/mysql/mysql-bin.000019
-生成如下文件
-[root@localhost tmp]# ls
-binlog_out.txt  cacti_data.c-delete_to_insert.sql  cacti_data.c-insert_to_delete.sql  cacti_data.c-update_to_update.sql 
+##执行恢复命令<br>
+./mysqlbinlog_parse -f /data/mysql/mysql-bin.000019<br>
+生成如下文件<br>
+[root@localhost tmp]# ls<br>
+binlog_out.txt  cacti_data.c-delete_to_insert.sql  cacti_data.c-insert_to_delete.sql  cacti_data.c-update_to_update.sql <br>
 
 #恢复
-##1、恢复插入操作
-cacti_data.c-insert_to_delete.sql，将插入的四行信息改为delete操作
-[root@localhost tmp]# cat cacti_data.c-insert_to_delete.sql 
-DELETE FROM cacti_data.c
-WHERE
-a=1 and 
-b='2';
-DELETE FROM cacti_data.c
-WHERE
-a=1 and 
-b='2';
-DELETE FROM cacti_data.c
-WHERE
-a=1 and 
-b='2';
-DELETE FROM cacti_data.c
-WHERE
-a=1 and 
-b='2';
+##1、恢复插入操作<br>
+cacti_data.c-insert_to_delete.sql，将插入的四行信息改为delete操作<br>
+[root@localhost tmp]# cat cacti_data.c-insert_to_delete.sql <br>
+DELETE FROM cacti_data.c<br>
+WHERE<br>
+a=1 and <br>
+b='2';<br>
+DELETE FROM cacti_data.c<br>
+WHERE<br>
+a=1 and <br>
+b='2';<br>
+DELETE FROM cacti_data.c<br>
+WHERE<br>
+a=1 and <br>
+b='2';<br>
+DELETE FROM cacti_data.c<br>
+WHERE<br>
+a=1 and <br>
+b='2';<br>
 
-##导入sql进行恢复：
+##导入sql进行恢复：<br>
 
-[root@localhost tmp]# mysql -uroot -p cacti_data <cacti_data.c-insert_to_delete.sql 
-Enter password: 
-[root@localhost tmp]# 
+[root@localhost tmp]# mysql -uroot -p cacti_data <cacti_data.c-insert_to_delete.sql <br>
+Enter password: <br>
+[root@localhost tmp]# <br>
 
 ##查看
-(root:voole:)[cacti_data]> select * from c;
-Empty set (0.00 sec)
-(root:voole:)[cacti_data]> 
+(root:voole:)[cacti_data]> select * from c;<br>
+Empty set (0.00 sec)<br>
+(root:voole:)[cacti_data]> <br>
 
-已经不存在
+已经不存在<br>
 
-#2、测试删除操作
+#2、测试删除操作<br>
 
-cacti_data.c-delete_to_insert.sql：将delete操作生成insert
-[root@localhost tmp]# cat cacti_data.c-delete_to_insert.sql 
-replace into cacti_data.c
-select
-1,
-'2';
-replace into cacti_data.c
-select
-1,
-'2';
-replace into cacti_data.c
-select
-1,
-'2';
-replace into cacti_data.c
-select
-1,
-'2';
-replace into cacti_data.c
-select
-1,
-'2';
-##查看表
-(root:voole:)[cacti_data]> select * from c;
-Empty set (0.00 sec)
-(root:voole:)[cacti_data]> 
-##运行sql
-[root@localhost tmp]# mysql -uroot -p cacti_data <cacti_data.c-delete_to_insert.sql 
-Enter password: 
-[root@localhost tmp]# 
-##查看
-(root:voole:)[cacti_data]> select * from c;
-+------+------+
+cacti_data.c-delete_to_insert.sql：将delete操作生成insert<br>
+[root@localhost tmp]# cat cacti_data.c-delete_to_insert.sql <br>
+replace into cacti_data.c<br>
+select<br>
+1,<br>
+'2';<br>
+replace into cacti_data.c<br>
+select<br>
+1,<br>
+'2';<br>
+replace into cacti_data.c<br>
+select<br>
+1,<br>
+'2';<br>
+replace into cacti_data.c<br>
+select<br>
+1,<br>
+'2';<br>
+replace into cacti_data.c<br>
+select<br>
+1,<br>
+'2';<br>
+##查看表<br>
+(root:voole:)[cacti_data]> select * from c;<br>
+Empty set (0.00 sec)<br>
+(root:voole:)[cacti_data]> <br>
+##运行sql<br>
+[root@localhost tmp]# mysql -uroot -p cacti_data <cacti_data.c-delete_to_insert.sql <br>
+Enter password: <br>
+[root@localhost tmp]# <br>
+##查看<br>
+(root:voole:)[cacti_data]> select * from c;<br>
++------+------+<br>
 | a    | b    |
 +------+------+
 |    1 | 2    |
@@ -162,42 +162,42 @@ Enter password:
 |    1 | 2    |
 |    1 | 2    |
 +------+------+
-5 rows in set (0.00 sec)
-(root:voole:)[cacti_data]> 
+5 rows in set (0.00 sec)<br>
+(root:voole:)[cacti_data]> <br>
 
-##3、恢复更新操作
- cacti_data.c-update_to_update.sql；将更新进行兑换生成更新操作
-[root@localhost tmp]# cat cacti_data.c-update_to_update.sql 
-UPDATE cacti_data.c
-SET
-a=1,
-b='2'
-WHERE
-a=1 and 
-b='fdsafdas';
-UPDATE cacti_data.c
-SET
-a=1,
-b='2'
-WHERE
-a=1 and 
-b='fdsafdas';
-UPDATE cacti_data.c
-SET
-a=1,
-b='2'
-WHERE
-a=1 and 
-b='fdsafdas';
-UPDATE cacti_data.c
-SET
-a=1,
-b='2'
-WHERE
-a=1 and 
-b='fdsafdas';
-##查看表
-(root:voole:)[cacti_data]> select * from c;
+##3、恢复更新操作<br>
+ cacti_data.c-update_to_update.sql；将更新进行兑换生成更新操作<br>
+[root@localhost tmp]# cat cacti_data.c-update_to_update.sql <br>
+UPDATE cacti_data.c<br>
+SET<br>
+a=1,<br>
+b='2'<br>
+WHERE<br>
+a=1 and <br>
+b='fdsafdas';<br>
+UPDATE cacti_data.c<br>
+SET<br>
+a=1,<br>
+b='2'<br>
+WHERE<br>
+a=1 and <br>
+b='fdsafdas';<br>
+UPDATE cacti_data.c<br>
+SET<br>
+a=1,<br>
+b='2'<br>
+WHERE<br>
+a=1 and <br>
+b='fdsafdas';<br>
+UPDATE cacti_data.c<br>
+SET<br>
+a=1,<br>
+b='2'<br>
+WHERE<br>
+a=1 and <br>
+b='fdsafdas';<br>
+##查看表<br>
+(root:voole:)[cacti_data]> select * from c;<br>
 +------+----------+
 | a    | b        |
 +------+----------+
@@ -207,15 +207,15 @@ b='fdsafdas';
 |    1 | fdsafdas |
 |    1 | fdsafdas |
 +------+----------+
-5 rows in set (0.00 sec)
-(root:voole:)[cacti_data]> 
-##导入sql
-[root@localhost tmp]# mysql -uroot -p cacti_data <cacti_data.c-update_to_update.sql 
-Enter password: 
-[root@localhost tmp]# 
+5 rows in set (0.00 sec)<br>
+(root:voole:)[cacti_data]> <br>
+##导入sql<br>
+[root@localhost tmp]# mysql -uroot -p cacti_data <cacti_data.c-update_to_update.sql <br>
+Enter password: <br>
+[root@localhost tmp]# <br>
 
-##查看
-(root:voole:)[cacti_data]> select * from c;
+##查看<br>
+(root:voole:)[cacti_data]> select * from c;<br>
 +------+------+
 | a    | b    |
 +------+------+
@@ -225,12 +225,12 @@ Enter password:
 |    1 | 2    |
 |    1 | 2    |
 +------+------+
-5 rows in set (0.00 sec)
+5 rows in set (0.00 sec)<br>
 (root:voole:)[cacti_data]> 
 
-#4、恢复特定库或表
-如：cacti_data 下的kevin表。
-]# ./mysqlbinlog_parse -f /data/mysql/mysql-bin.000021 -d cacti_data -t kevin
+#4、恢复特定库或表<br>
+如：cacti_data 下的kevin表。<br>
+]# ./mysqlbinlog_parse -f /data/mysql/mysql-bin.000021 -d cacti_data -t kevin<br>
 
 
 
