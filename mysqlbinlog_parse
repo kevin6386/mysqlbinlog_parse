@@ -161,7 +161,7 @@ sub get_db_table{
         }
 }
 #定义连接本地用户名及密码
-#grant select,super on *.* to voole_back@localhost identified by 'voole_back';
+#grant select,super on *.* to kevin@localhost identified by 'kevin';
 #定义连接本地数据库函数
 sub LOCAL_DBCON{
 	my $dsn1="DBI:mysql:database=$local_db;host=$local_dbip;port=3306";
