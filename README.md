@@ -4,14 +4,14 @@ MySQL binlog格式必须开启ROW格式
 工具采用perl编写
 ##参数：
 options :<br>
-	-h,--help 			    # OUT : print help info   <br>
+	-h,--help 				    # OUT : print help info   <br>
 	-f	 			        # IN  : binlog file. [required]<br>
-	--start-datetime 		# IN  : start datetime<br>
-	--stop-datetime	 		# IN  : stop datetime<br>
-	--start-position 		# IN  : start position<br>
-	--stop-position	 		# IN  : stop position<br>
-	-d, --database	 		# IN  : database, split comma<br>
-	-t, --table	 		    # IN  : table, split comma. [required] set -d<br>
+	--start-datetime 			# IN  : start datetime<br>
+	--stop-datetime	 			# IN  : stop datetime<br>
+	--start-position 			# IN  : start position<br>
+	--stop-position	 			# IN  : stop position<br>
+	-d, --database	 			# IN  : database, split comma<br>
+	-t, --table		 		    # IN  : table, split comma. [required] set -d<br>
 Sample :<br>
    mysqlbinlog_parse -f 'mysql-bin.xxx' #指定binlog文件<br>
    mysqlbinlog_parse -f 'mysql-bin.xxx'  --start-position=pos#开始点<br>
