@@ -2,7 +2,7 @@
 mysqlbinlog 对delete update insert 闪回操作，在tmp 生成对应闪回的库表的sql，不再担心delete等误操作。
 MySQL binlog格式必须开启ROW格式
 工具采用perl编写
-参数：
+##参数：
 options :
 	-h,--help			    # OUT : print help info   
 	-f				        # IN  : binlog file. [required]
@@ -19,7 +19,7 @@ Sample :
    mysqlbinlog_parse -f 'mysql-bin.xxx'  -d 'db' #指定db
    mysqlbinlog_parse -f 'mysql-bin.xxx'  -d 'db' -t 'table' #指定table
 
-插入测试：
+##插入测试：
 (root:voole:)[cacti_data]> select * from c;
 Empty set (0.00 sec)
 
@@ -46,7 +46,7 @@ Query OK, 1 row affected (0.00 sec)
 +------+------+
 4 rows in set (0.00 sec)
 
-删除测试：
+##删除测试：
 (root:voole:)[cacti_data]> select * from c;
 +------+------+
 | a    | b    |
@@ -63,7 +63,7 @@ Query OK, 5 rows affected (0.00 sec)
 (root:voole:)[cacti_data]> select * from c;
 Empty set (0.00 sec)
 
-更新测试：
+##更新测试：
 (root:voole:)[cacti_data]> update c set b='fdsafdas';
 Query OK, 4 rows affected (0.00 sec)
 Rows matched: 4  Changed: 4  Warnings: 0
@@ -79,14 +79,14 @@ Rows matched: 4  Changed: 4  Warnings: 0
 4 rows in set (0.00 sec)
 (root:voole:)[cacti_data]> 
 
-执行恢复命令
+##执行恢复命令
 ./mysqlbinlog_parse -f /data/mysql/mysql-bin.000019
 生成如下文件
 [root@localhost tmp]# ls
 binlog_out.txt  cacti_data.c-delete_to_insert.sql  cacti_data.c-insert_to_delete.sql  cacti_data.c-update_to_update.sql 
 
-恢复
-1、恢复插入操作
+#恢复
+##1、恢复插入操作
 cacti_data.c-insert_to_delete.sql，将插入的四行信息改为delete操作
 [root@localhost tmp]# cat cacti_data.c-insert_to_delete.sql 
 DELETE FROM cacti_data.c
@@ -106,20 +106,20 @@ WHERE
 a=1 and 
 b='2';
 
-导入sql进行恢复：
+##导入sql进行恢复：
 
 [root@localhost tmp]# mysql -uroot -p cacti_data <cacti_data.c-insert_to_delete.sql 
 Enter password: 
 [root@localhost tmp]# 
 
-查看
+##查看
 (root:voole:)[cacti_data]> select * from c;
 Empty set (0.00 sec)
 (root:voole:)[cacti_data]> 
 
 已经不存在
 
-2、测试删除操作
+#2、测试删除操作
 
 cacti_data.c-delete_to_insert.sql：将delete操作生成insert
 [root@localhost tmp]# cat cacti_data.c-delete_to_insert.sql 
@@ -143,15 +143,15 @@ replace into cacti_data.c
 select
 1,
 '2';
-查看表
+##查看表
 (root:voole:)[cacti_data]> select * from c;
 Empty set (0.00 sec)
 (root:voole:)[cacti_data]> 
-运行sql
+##运行sql
 [root@localhost tmp]# mysql -uroot -p cacti_data <cacti_data.c-delete_to_insert.sql 
 Enter password: 
 [root@localhost tmp]# 
-查看
+##查看
 (root:voole:)[cacti_data]> select * from c;
 +------+------+
 | a    | b    |
@@ -165,7 +165,7 @@ Enter password:
 5 rows in set (0.00 sec)
 (root:voole:)[cacti_data]> 
 
-3、恢复更新操作
+##3、恢复更新操作
  cacti_data.c-update_to_update.sql；将更新进行兑换生成更新操作
 [root@localhost tmp]# cat cacti_data.c-update_to_update.sql 
 UPDATE cacti_data.c
@@ -196,7 +196,7 @@ b='2'
 WHERE
 a=1 and 
 b='fdsafdas';
-查看表
+##查看表
 (root:voole:)[cacti_data]> select * from c;
 +------+----------+
 | a    | b        |
@@ -209,12 +209,12 @@ b='fdsafdas';
 +------+----------+
 5 rows in set (0.00 sec)
 (root:voole:)[cacti_data]> 
-导入sql
+##导入sql
 [root@localhost tmp]# mysql -uroot -p cacti_data <cacti_data.c-update_to_update.sql 
 Enter password: 
 [root@localhost tmp]# 
 
-查看
+##查看
 (root:voole:)[cacti_data]> select * from c;
 +------+------+
 | a    | b    |
@@ -228,7 +228,7 @@ Enter password:
 5 rows in set (0.00 sec)
 (root:voole:)[cacti_data]> 
 
-4、恢复特定库或表
+#4、恢复特定库或表
 如：cacti_data 下的kevin表。
 ]# ./mysqlbinlog_parse -f /data/mysql/mysql-bin.000021 -d cacti_data -t kevin
 
