@@ -17,7 +17,6 @@ my $local_dbuser='kevin';
 my $local_dbpass='kevin';
 my $output_file='/tmp/binlog_out.txt';
 my $binlog_file; 
-my (%do_dbs,%do_tbs);
 my $MYSQLBINLOG=`which mysqlbinlog`;
 my ($ROLLBACK_DML);
 chomp($MYSQLBINLOG);
