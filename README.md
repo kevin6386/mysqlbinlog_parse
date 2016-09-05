@@ -1,6 +1,6 @@
 # mysqlbinlog_parse 介绍
-mysqlbinlog 对delete update insert 闪回操作，在tmp 生成对应闪回的库表的sql，不再担心delete等误操作。
-MySQL binlog格式必须开启ROW格式
+工具分析MySQL 的binlog 对delete/ update /insert 进行闪回操作，在tmp 目录下生成对应闪回库表的sql，不再担心delete等误操作。
+要求：MySQL binlog格式必须开启ROW格式
 工具采用perl编写
 ##参数：
 options :<br>
