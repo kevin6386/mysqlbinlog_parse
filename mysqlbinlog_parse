@@ -66,7 +66,6 @@ sub get_options{
 	$MYSQLBINLOG .= " --start-datetime='".$opt{'start-datetime'}."'" if $opt{'start-datetime'};
 	$MYSQLBINLOG .= " --stop-datetime='$opt{'stop-datetime'}'" if $opt{'stop-datetime'};
 	$MYSQLBINLOG .= " $binlog_file";
-	# 不使用mysqlbinlog过滤，USE dbname;方式可能会漏掉某些sql，所以不在mysqlbinlog过滤
 	# 提取有效DML SQL,提取###的真实sql,并添加','
 	$ROLLBACK_DML = $MYSQLBINLOG." | grep '^###'|sed '/@/s/\$/,/'";
 	#输出到/tmp/
