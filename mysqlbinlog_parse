@@ -21,18 +21,17 @@ my (%do_dbs,%do_tbs);
 my $MYSQLBINLOG=`which mysqlbinlog`;
 my ($ROLLBACK_DML);
 chomp($MYSQLBINLOG);
-my $PRINT_DES = '--------------------------';
 my $ldbh;
 # 定义命令指定参数 
 sub get_options{
 	#Get options info
 	GetOptions(\%opt,
 		'help|h=s',			# 帮助
-		'f|binlog=s',			# IN  :  binlog file
-		'start-datetime=s',		# IN  :  start datetime
-		'stop-datetime=s',		# IN  :  stop datetime
-		'start-position=i',		# IN  :  start position
-		'stop-position=i',		# IN  :  stop position
+		'f|binlog=s',			# binlog file
+		'start-datetime=s',		# start datetime
+		'stop-datetime=s',		# stop datetime
+		'start-position=i',		# start position
+		'stop-position=i',		#stop position
 		'd=s',				#指定数据库
 		't=s'				#指定表
 	  ) or print_usage();
@@ -60,7 +59,7 @@ sub get_options{
 	}
 	my $d_t="$dbname.$table";
 	# 
-	# 提取binlog,不需要显示列定义信息，用-v，--base64-output=DECODE-ROWS 不显示注释
+	# 提取binlog,用-v，--base64-output=DECODE-ROWS 不显示注释
 	my $MYSQLBINLOG = qq{$MYSQLBINLOG -v --base64-output=DECODE-ROWS};
 	$MYSQLBINLOG .= " --start-position=".$opt{'start-position'} if $opt{'start-position'};
 	$MYSQLBINLOG .= " --stop-position=".$opt{'stop-position'} if $opt{'stop-postion'};
@@ -184,23 +183,21 @@ sub error{
 #
 sub print_usage{
 	print color 'bold blue'; print  <<EOF;
-==========================================================================================
 options :
-	-h,--help			# OUT : print help info   
-	-f				# IN  : binlog file. [required]
-	--start-datetime		# IN  : start datetime
-	--stop-datetime			# IN  : stop datetime
-	--start-position		# IN  : start position
-	--stop-position			# IN  : stop position
-	-d, --database			# IN  : database, split comma
-	-t, --table			# IN  : table, split comma. [required] set -d
+	-h,--help			#print help info   
+	-f				#binlog file.
+	--start-datetime		#start datetime
+	--stop-datetime			#stop datetime
+	--start-position		#start position
+	--stop-position			#stop position
+	-d, --database			#database, split comma
+	-t, --table			#table, split comma. [required] set -d
 Sample :
    mysqlbinlog_parse -f 'mysql-bin.xxx' 
    mysqlbinlog_parse -f 'mysql-bin.xxx'  --start-position=pos
    mysqlbinlog_parse -f 'mysql-bin.xxx'  --start-position=pos --stop-position=pos
    mysqlbinlog_parse -f 'mysql-bin.xxx'  -d 'db'
    mysqlbinlog_parse -f 'mysql-bin.xxx'  -d 'db' -t 'table'
-==========================================================================================
 EOF
 print color 'reset'; 
 	exit;   
