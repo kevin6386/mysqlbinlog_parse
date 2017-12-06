@@ -77,7 +77,7 @@ sub get_options{
 		exit;
 	}
 	#将'`' 去掉,方便后续处理
-	my $sed=`sed -i 's/\`//g' $output_file`
+	my $sed=`sed -i 's/\`//g' $output_file`;
 	#判断是否读取特定库或表
 	my $GREP="grep -E -i 'delete|update|insert' $output_file";
 	if( $d_t ne '.'){
