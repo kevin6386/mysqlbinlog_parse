@@ -146,23 +146,29 @@ sub get_db_table{
 	chomp($delete);
 	if( $delete ne '' ){
 		#提取delete
+		print "开始提取$db.$table delete \n";
 	   	my $delete_file=`grep -i 'delete from $db.$table' -A $d_i_num $output_file |sed -r 's/(\@$num.*),/\\1;/'|$del >/tmp/$db.$table-'delete_to_insert.sql'`;
+		print "提取$db.$table delete 完毕!\n";
 	}
 	#判断是否存在insert
 	my $insert=`grep -i 'INSERT INTO $db.$table' $output_file`;
 	chomp($insert);
         if( $insert ne '' ){
                 #提取insert
+		print "开始提取$db.$table insert \n";
                 #my $insert_file=`grep -i 'INSERT INTO $db.$table' -A $d_i_num $output_file |sed -r 's/(\@$num.*),/\\1;/g'|$ins >/tmp/$db.$table-'insert_to_delete.sql'`;
 		my $inser=`grep -i 'INSERT INTO $db.$table' -A $d_i_num $output_file |sed -r 's/(\@$num.*),/\\1;/g'|$ins >/tmp/$db.$table-'insert_to_delete.sql'`;
+		print "提取$db.$table insert 完毕!\n";
 	}
 	#判断是否存在update
 	my $update=`grep -i 'UPDATE $db.$table' $output_file`;
         chomp($update);
         if( $update ne '' ){
                 #提取update
+		print "开始提取$db.$table update \n";
  		my $update=`grep -i 'UPDATE $db.$table' -A $up_num $output_file |$upd >/tmp/$db.$table-'update_to_update.sql'`;               
-        }
+        	print "提取$db.$table update 完毕!\n";
+	}
 }
 #定义连接本地用户名及密码
 #grant select,super on *.* to kevin@localhost identified by 'kevin';
