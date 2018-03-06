@@ -10,6 +10,8 @@ use DBI;
 use strict;
 use Getopt::Long;
 use Term::ANSIColor;
+use Parallel::ForkManager;
+my $pm = Parallel::ForkManager->new( 10 );#设置并发进程个数
 my %opt;
 my $local_db='information_schema';
 my $local_dbip='localhost';
@@ -79,7 +81,7 @@ sub get_options{
 	#将'`' 去掉,方便后续处理
 	my $sed=`sed -i 's/\`//g' $output_file`;
 	#判断是否读取特定库或表
-	my $GREP="grep -E -i 'delete|update|insert' $output_file";
+	my $GREP="grep -E -i 'delete |update |insert ' $output_file";
 	if( $d_t ne '.'){
 		$GREP.="|grep -i '$d_t'";
 	}	
@@ -87,7 +89,10 @@ sub get_options{
 	my @dbinfo=`$GREP |awk '{print \$NF}' |sort|uniq`;
 	foreach my $key ( @dbinfo){
 		chomp($key);
+		my $pid = $pm->start and next;
 		&get_db_table("$key");
+		$pm->finish; #终止子进程
+
 	}	
 }
 &get_options;
